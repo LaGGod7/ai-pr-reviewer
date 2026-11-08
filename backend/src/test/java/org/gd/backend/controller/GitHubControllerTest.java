@@ -1,7 +1,7 @@
 package org.gd.backend.controller;
 
 import org.gd.backend.dto.RepoInfoResponse;
-import org.gd.backend.exception.RepositoryNotFoundException;
+import org.gd.backend.exception.GitHubResourceNotFoundException;
 import org.gd.backend.service.GitHubService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,11 +37,12 @@ class GitHubControllerTest {
     @Test
     void getRepo_whenNotFound_returns404()  throws Exception {
         //Arrange
-        when(gitHubService.getRepoInfo("octo", "missing")).thenThrow(new RepositoryNotFoundException("octo", "missing"));
+        when(gitHubService.getRepoInfo("octo", "missing"))
+                .thenThrow(new GitHubResourceNotFoundException("/repos/octo/missing"));
         mockMvc.perform(get("/api/v1/github/repos/octo/missing"))
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.title").value("Repository not found"))
-                .andExpect(jsonPath("$.detail").value("Repository octo/missing not found"));
+                .andExpect(jsonPath("$.title").value("Resource not found"))
+                .andExpect(jsonPath("$.detail").value("GitHub resource not found: /repos/octo/missing"));
 
     }
 

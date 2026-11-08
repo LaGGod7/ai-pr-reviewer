@@ -25,7 +25,7 @@ public class GitHubController {
     };
 
     @GetMapping("/repos/{owner}/{repo}/pulls/{number}")
-    public PullRequestDetailsResponse getPullReqInfo(@PathVariable String owner, @PathVariable String repo, @PathVariable int number)
+    public PullRequestDetailsResponse getPullRequestDetails(@PathVariable String owner, @PathVariable String repo, @PathVariable int number)
     {
         return gitHubService.getPullRequestDetails(owner, repo, number);
     }

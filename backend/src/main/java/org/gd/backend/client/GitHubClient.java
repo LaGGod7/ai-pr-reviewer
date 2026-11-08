@@ -4,7 +4,7 @@ import org.gd.backend.dto.github.GitHubFileResponse;
 import org.gd.backend.dto.github.GitHubPullRequestResponse;
 import org.gd.backend.dto.github.GitHubRepoResponse;
 
-import org.gd.backend.exception.RepositoryNotFoundException;
+import org.gd.backend.exception.GitHubResourceNotFoundException;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
@@ -23,9 +23,6 @@ public class GitHubClient {
         return restClient.get()
                 .uri("/repos/{owner}/{repo}",owner,repo)
                 .retrieve()
-                .onStatus(status -> status.isSameCodeAs(HttpStatus.NOT_FOUND), (request, response) -> {
-            throw new RepositoryNotFoundException(owner, repo);
-        })
                 .body(GitHubRepoResponse.class);
     }
     public GitHubPullRequestResponse getPullRequest(String owner, String repo, int number) {
