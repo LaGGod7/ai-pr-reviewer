@@ -7,10 +7,10 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
-    @ExceptionHandler(RepositoryNotFoundException.class)
-    public ProblemDetail handleRepositoryNotFoundException(RepositoryNotFoundException ex) {
+    @ExceptionHandler(GitHubResourceNotFoundException.class)
+    public ProblemDetail handleRepositoryNotFoundException(GitHubResourceNotFoundException ex) {
         ProblemDetail problem  = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, ex.getMessage());
-        problem.setTitle("Repository not found");
+        problem.setTitle("Resource not found");
         return problem;
     }
 }
