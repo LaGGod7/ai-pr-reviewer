@@ -2,7 +2,7 @@ package org.gd.backend.service;
 
 import org.gd.backend.client.GitHubClient;
 import org.gd.backend.dto.github.GitHubRepoResponse;
-import org.gd.backend.dto.github.RepoInfoResponse;
+import org.gd.backend.dto.RepoInfoResponse;
 import org.springframework.stereotype.Service;
 
 @Service

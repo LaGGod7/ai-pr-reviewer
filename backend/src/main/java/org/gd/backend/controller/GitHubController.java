@@ -1,7 +1,6 @@
 package org.gd.backend.controller;
 
-import org.gd.backend.client.GitHubClient;
-import org.gd.backend.dto.github.RepoInfoResponse;
+import org.gd.backend.dto.RepoInfoResponse;
 import org.gd.backend.service.GitHubService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;

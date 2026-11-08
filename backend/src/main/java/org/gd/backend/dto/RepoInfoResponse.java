@@ -1,4 +1,4 @@
-package org.gd.backend.dto.github;
+package org.gd.backend.dto;
 
 public record RepoInfoResponse(
     String fullName,
