@@ -1,13 +1,13 @@
 from pydantic import BaseModel,Field
 
-class FieldDiff(BaseModel):
+class FileDiff(BaseModel):
     filename: str
     status:str
     patch:str | None = None
 
 class ReviewRequest(BaseModel):
     title:str
-    files:list[FieldDiff] = Field(min_length =1)
+    files:list[FileDiff] = Field(min_length =1)
 
 class ReviewResponse(BaseModel):
     review:str
