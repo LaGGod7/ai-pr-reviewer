@@ -1,9 +1,11 @@
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder, SystemMessagePromptTemplate, HumanMessagePromptTemplate
-
+import logging
 from app.llm import get_llm
 from app.models import ReviewRequest, ReviewResponse
-
+from app.exceptions import LLMUnavailableError
 MAX_DIFF_CHARS = 12_000
+
+logger = logging.getLogger(__name__)
 
 SYSTEM_PROMPT = """You are a senior software engineer reviewing a pull request.
 You only see diff snippets, not full files. Do not comment on code you cannot see,
@@ -38,7 +40,12 @@ def review_pull_request(request:ReviewRequest) -> ReviewResponse:
     if files_reviewed == 0:
         return ReviewResponse(review="No reviewable changes.", files_reviewed=0, truncated=truncated)
     chain = prompt | get_llm()
-    result = chain.invoke({"title": request.title, "diff": diff})
+    try:
+        result = chain.invoke({"title": request.title, "diff": diff})
+    except Exception as e:
+        logger.exception("LLM invocation failed")
+        raise LLMUnavailableError("The AI provider failed or timed out") from e
+    
     return ReviewResponse(review=result.text, files_reviewed=files_reviewed, truncated=truncated)
 
      
