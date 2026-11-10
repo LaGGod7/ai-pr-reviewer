@@ -16,6 +16,7 @@ public class AiServiceClientConfig {
     public RestClient aiServiceRestClient(RestClient.Builder builder,AiServiceProperties props) {
 
         HttpClient httpClient = HttpClient.newBuilder()
+                .version(HttpClient.Version.HTTP_1_1)
                 .connectTimeout(Duration.ofSeconds(5))
                 .build();
 
