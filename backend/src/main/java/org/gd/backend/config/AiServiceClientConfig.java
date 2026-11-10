@@ -1,7 +1,9 @@
 package org.gd.backend.config;
 
+import org.gd.backend.exception.AiServiceUnavailableException;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.client.JdkClientHttpRequestFactory;
 import org.springframework.web.client.RestClient;
 
@@ -13,7 +15,7 @@ import java.time.Duration;
 public class AiServiceClientConfig {
 
     @Bean
-    public RestClient aiServiceRestClient(RestClient.Builder builder,AiServiceProperties props) {
+    public RestClient aiServiceRestClient(RestClient.Builder builder, AiServiceProperties props) {
 
         HttpClient httpClient = HttpClient.newBuilder()
                 .version(HttpClient.Version.HTTP_1_1)
@@ -26,6 +28,9 @@ public class AiServiceClientConfig {
         return builder
                 .baseUrl(props.url())
                 .requestFactory(requestFactory)
+                .defaultStatusHandler(HttpStatusCode::is5xxServerError, (request, response) -> {
+                    throw new AiServiceUnavailableException("Ai service returned " + response.getStatusCode());
+                })
                 .build();
     }
 

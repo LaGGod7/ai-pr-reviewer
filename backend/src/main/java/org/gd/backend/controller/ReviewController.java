@@ -15,7 +15,7 @@ public class ReviewController {
     }
 
     @PostMapping("/{owner}/{repo}/pulls/{number}")
-    public PullRequestReviewResponse response(@PathVariable String owner, @PathVariable String repo, @PathVariable int number){
+    public PullRequestReviewResponse reviewPullRequest(@PathVariable String owner, @PathVariable String repo, @PathVariable int number){
         return reviewService.reviewPullRequest(owner,repo,number);
     }
 }
