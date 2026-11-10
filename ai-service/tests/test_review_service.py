@@ -2,7 +2,7 @@ from langchain_core.language_models.fake_chat_models import FakeListChatModel
 
 from app import review_service
 from app.models import ReviewRequest, FileDiff
-from app.review_service import build_diff, review_pull_request
+from app.review_service import build_diff, review_pull_request,number_patch
 
 def make_request(*files:FileDiff) -> ReviewRequest:
     return ReviewRequest(title="Test PR", files=list(files))
@@ -53,3 +53,11 @@ def test_build_diff_truncates_large_diffs():
     assert truncated is True
     assert "Big1.java" in diff
     assert "Big2.java" not in diff
+
+def test_number_patch_skips_removed_lines():
+     patch = "@@ -1,2 +1,2 @@\n+new first\n-old second\n context"
+     result = number_patch(patch).splitlines()
+     
+     assert result[1].strip() == "1 +new first"
+     assert result[2].strip() == "-old second"
+     assert result[3].strip() == "2  context"
