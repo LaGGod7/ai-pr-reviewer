@@ -3,3 +3,4 @@ pydantic-settings
 langchain
 langchain-google-genai
 langchain-groq
+ruff
