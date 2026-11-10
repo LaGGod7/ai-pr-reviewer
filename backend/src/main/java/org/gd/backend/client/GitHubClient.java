@@ -5,6 +5,7 @@ import org.gd.backend.dto.github.GitHubPullRequestResponse;
 import org.gd.backend.dto.github.GitHubRepoResponse;
 
 import org.gd.backend.exception.GitHubResourceNotFoundException;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
@@ -15,10 +16,12 @@ import java.util.List;
 
 @Component
 public class GitHubClient {
+
     private final RestClient restClient;
-    public GitHubClient(RestClient restClient) {
+    public GitHubClient(@Qualifier("gitHubRestClient") RestClient restClient) {
         this.restClient = restClient;
     }
+
     public GitHubRepoResponse getRepository(String owner, String repo) {
         return restClient.get()
                 .uri("/repos/{owner}/{repo}",owner,repo)
