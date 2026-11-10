@@ -4,17 +4,21 @@ from fastapi import Request
 from fastapi.responses import JSONResponse
 from app.exceptions import LLMUnavailableError
 from app.config import settings
-app = FastAPI(title = "PR Reviewer AI Service")
-from app.models import ReviewResponse,ReviewRequest
+
+app = FastAPI(title="PR Reviewer AI Service")
+from app.models import ReviewResponse, ReviewRequest
 from app.review_service import review_pull_request
+
 
 @app.get("/api/v1/health")
 def health():
-    return {"status": "UP","service": "pr-reviewer-ai-service"}
+    return {"status": "UP", "service": "pr-reviewer-ai-service"}
 
-@app.post("/api/v1/review",response_model=ReviewResponse)
+
+@app.post("/api/v1/review", response_model=ReviewResponse)
 def review(request: ReviewRequest):
     return review_pull_request(request)
+
 
 @app.exception_handler(LLMUnavailableError)
 async def llm_unavailable_handler(request: Request, exc: LLMUnavailableError):

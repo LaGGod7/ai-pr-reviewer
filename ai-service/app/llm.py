@@ -3,12 +3,13 @@ from langchain_groq import ChatGroq
 
 from app.config import settings
 
+
 def get_llm():
     if settings.llm_provider == "gemini":
         return ChatGoogleGenerativeAI(
-            model = settings.llm_model,
-            google_api_key = settings.google_api_key,
-            temperature = 0,
+            model=settings.llm_model,
+            google_api_key=settings.google_api_key,
+            temperature=0,
         )
     if settings.llm_provider == "groq":
         return ChatGroq(
