@@ -1,5 +1,7 @@
 package org.gd.backend.service;
 
+import org.gd.backend.Entity.ReviewEntity;
+import org.gd.backend.repository.ReviewRepository;
 import org.gd.backend.client.AiReviewClient;
 import org.gd.backend.dto.FileStatus;
 import org.gd.backend.dto.PullRequestDetailsResponse;
@@ -18,14 +20,16 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class ReviewServiceTest {
 
     @Mock
     private GitHubService gitHubService;
+
+    @Mock
+    private ReviewRepository reviewRepository;
 
     @Mock
     private AiReviewClient aiReviewClient;
@@ -96,6 +100,28 @@ class ReviewServiceTest {
         // Act + Assert
         assertThrows(AiServiceUnavailableException.class,
                 () -> reviewService.reviewPullRequest("octo", "hello", 5));
+        verify(reviewRepository, never()).save(any());
+    }
+    @Test
+    void reviewPullRequest_savesReviewWithFindings() {
+        // Arrange: same stubbing as reviewPullRequest_combinesPrInfoAndAiFindings
+        when(gitHubService.getPullRequestDetails("octo","hello",5)).thenReturn(samplePr());
+        var aiResponse = new AiReviewResponse(
+                "One problem found",
+                List.of(new AiReviewResponse.Finding(
+                        "Auth.java", 2, "CRITICAL", "Hardcoded password", "Use a secret store")),
+                1, false);
+        when(aiReviewClient.review(any(AiReviewRequest.class))).thenReturn(aiResponse);
+
+        reviewService.reviewPullRequest("octo", "hello", 5);
+
+        ArgumentCaptor<ReviewEntity> captor = ArgumentCaptor.forClass(ReviewEntity.class);
+        verify(reviewRepository).save(captor.capture());
+
+        ReviewEntity saved = captor.getValue();
+        assertEquals("octo/hello", saved.getRepoFullName());
+        assertEquals(5, saved.getPrNumber());
+        assertEquals(1, saved.getFindings().size()); // match the number of findings your fake AI response has
     }
 
 }
