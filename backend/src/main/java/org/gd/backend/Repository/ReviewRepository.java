@@ -1,6 +1,6 @@
 package org.gd.backend.repository;
 
-import org.gd.backend.Entity.ReviewEntity;
+import org.gd.backend.entity.ReviewEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

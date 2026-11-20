@@ -1,13 +1,12 @@
 package org.gd.backend.client;
 
-import org.gd.backend.dto.github.GitHubFileResponse;
-import org.gd.backend.dto.github.GitHubPullRequestResponse;
-import org.gd.backend.dto.github.GitHubRepoResponse;
+import org.gd.backend.dto.github.*;
 
 import org.gd.backend.exception.GitHubResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
@@ -43,5 +42,13 @@ public class GitHubClient {
                 .body(new ParameterizedTypeReference<List<GitHubFileResponse>>() {
                 });
 
+    }
+    public GitHubReviewResponse createReview(String owner, String repo, int number , GitHubCreateReviewRequest request) {
+        return restClient.post()
+                .uri("/repos/{owner}/{repo}/pulls/{number}/reviews",owner,repo,number)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(request)
+                .retrieve()
+                .body(GitHubReviewResponse.class);
     }
 }
