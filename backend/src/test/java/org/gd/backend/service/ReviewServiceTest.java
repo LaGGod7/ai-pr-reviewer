@@ -1,6 +1,7 @@
 package org.gd.backend.service;
 
-import org.gd.backend.Entity.ReviewEntity;
+import org.gd.backend.dto.github.GitHubReviewResponse;
+import org.gd.backend.entity.ReviewEntity;
 import org.gd.backend.repository.ReviewRepository;
 import org.gd.backend.client.AiReviewClient;
 import org.gd.backend.dto.FileStatus;
@@ -24,6 +25,8 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class ReviewServiceTest {
+    @Mock
+    private ReviewPublisher reviewPublisher;
 
     @Mock
     private GitHubService gitHubService;
@@ -52,6 +55,8 @@ class ReviewServiceTest {
     @Test
     void reviewPullRequest_combinesPrInfoAndAiFindings()
     {   //Arrange
+        when(reviewPublisher.publish(any(), any(), any(), any()))
+                .thenReturn(new GitHubReviewResponse(1L, "https://github.com/octo/hello/pull/5#review-1"));
         when(gitHubService.getPullRequestDetails("octo","hello",5)).thenReturn(samplePr());
         var aiResponse = new AiReviewResponse(
                 "One problem found",
@@ -74,6 +79,8 @@ class ReviewServiceTest {
     @Test
     void reviewPullRequest_sendsTitleStatusesToAi(){
         //Arrange
+        when(reviewPublisher.publish(any(), any(), any(), any()))
+                .thenReturn(new GitHubReviewResponse(1L, "https://github.com/octo/hello/pull/5#review-1"));
         when(gitHubService.getPullRequestDetails("octo","hello",5)).thenReturn(samplePr());
         when(aiReviewClient.review(any(AiReviewRequest.class))).thenReturn(new AiReviewResponse("ok", List.of(), 1, false));
         ArgumentCaptor<AiReviewRequest> captor = ArgumentCaptor.forClass(AiReviewRequest.class);
@@ -101,10 +108,14 @@ class ReviewServiceTest {
         assertThrows(AiServiceUnavailableException.class,
                 () -> reviewService.reviewPullRequest("octo", "hello", 5));
         verify(reviewRepository, never()).save(any());
+        verify(reviewPublisher, never()).publish(any(), any(), any(), any());
     }
     @Test
     void reviewPullRequest_savesReviewWithFindings() {
         // Arrange: same stubbing as reviewPullRequest_combinesPrInfoAndAiFindings
+
+        when(reviewPublisher.publish(any(), any(), any(), any()))
+                .thenReturn(new GitHubReviewResponse(1L, "https://github.com/octo/hello/pull/5#review-1"));
         when(gitHubService.getPullRequestDetails("octo","hello",5)).thenReturn(samplePr());
         var aiResponse = new AiReviewResponse(
                 "One problem found",

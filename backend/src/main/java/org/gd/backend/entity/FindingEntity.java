@@ -1,4 +1,4 @@
-package org.gd.backend.Entity;
+package org.gd.backend.entity;
 
 import jakarta.persistence.*;
 import lombok.Getter;

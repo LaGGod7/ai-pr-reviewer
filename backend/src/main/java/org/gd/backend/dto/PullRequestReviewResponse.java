@@ -9,7 +9,7 @@ public record PullRequestReviewResponse(
         String url,
         String summary,
         int filesReviewed,
-        boolean truncated,
+        boolean truncated,String githubReviewUrl,
         List<Finding> findings
 ) {
     public record Finding(String file, Integer line,String severity, String message, String suggestion) {
