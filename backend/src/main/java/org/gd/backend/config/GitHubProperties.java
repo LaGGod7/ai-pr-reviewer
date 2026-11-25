@@ -12,7 +12,7 @@ import org.springframework.web.client.RestTemplate;
 @Validated
 @EnableConfigurationProperties(GitHubProperties.class)
 @ConfigurationProperties(prefix = "github")
-public record GitHubProperties(@NotBlank String apiUrl, @NotBlank String token) {
+public record GitHubProperties(@NotBlank String apiUrl, @NotBlank String token,@NotBlank String webhookSecret) {
 }
 
 

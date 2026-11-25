@@ -43,8 +43,7 @@ public class ReviewService {
 
         String reviewUrl = postToGithub(owner,repo,pr,ai);
 
-        GitHubReviewResponse posted = reviewPublisher.publish(owner, repo, pr, ai);
-        log.info("Posted GitHub review: {}", posted.htmlUrl());
+
         List<PullRequestReviewResponse.Finding> findings = ai.findings().stream().map(this::toFinding).toList();
         return new PullRequestReviewResponse(pr.number(),pr.title(),pr.url(),ai.summary(),ai.filesReviewed(),ai.truncated(),reviewUrl,findings);
     }
