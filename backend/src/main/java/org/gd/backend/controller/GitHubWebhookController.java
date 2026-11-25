@@ -1,6 +1,8 @@
 package org.gd.backend.controller;
 
 import org.gd.backend.webhook.PullRequestEvent;
+import org.gd.backend.webhook.ReviewDeduplicator;
+import org.gd.backend.webhook.WebhookReviewRunner;
 import org.gd.backend.webhook.WebhookSignatureVerifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,24 +14,28 @@ import tools.jackson.databind.ObjectMapper;
 import java.util.Set;
 
 @RestController
-@RequestMapping("api/v1/webhooks")
+@RequestMapping("/api/v1/webhooks")
 public class GitHubWebhookController {
     private static final Logger log = LoggerFactory.getLogger(GitHubWebhookController.class);
 
     private final WebhookSignatureVerifier signatureVerifier;
     private final ObjectMapper objectMapper;
+    private final WebhookReviewRunner reviewRunner;
+    private final ReviewDeduplicator reviewDeduplicator;
 
     private static final Set<String> REVIEW_ACTIONS = Set.of("opened","synchronize","reopened");
 
-    public GitHubWebhookController(WebhookSignatureVerifier signatureVerifier,ObjectMapper objectMapper) {
+    public GitHubWebhookController(WebhookSignatureVerifier signatureVerifier,ObjectMapper objectMapper,WebhookReviewRunner  reviewRunner,ReviewDeduplicator reviewDeduplicator) {
+        this.reviewRunner = reviewRunner;
         this.signatureVerifier = signatureVerifier;this.objectMapper = objectMapper;
+        this.reviewDeduplicator = reviewDeduplicator;
     }
 
 
     @PostMapping("/github")
     public ResponseEntity<Void> receive(
-            @RequestHeader("X-Github-Event") String event,
-            @RequestHeader("X-Github-Delivery") String deliveryId,
+            @RequestHeader("X-GitHub-Event") String event,
+            @RequestHeader("X-GitHub-Delivery") String deliveryId,
             @RequestHeader(value = "X-Hub-Signature-256",required = false)String signature,
             @RequestBody String payload){
 
@@ -54,7 +60,10 @@ public class GitHubWebhookController {
         String sha = pr.pullRequest().head().sha();
 
         log.info("Review needed: {}/{}#{} at commit {}", owner, repo, pr.number(), sha);
-
+        if(!reviewDeduplicator.markIfNew(owner, repo, pr.number(), sha)){
+            log.info("Skipping duplicate review of {}/{}#{} at commit {}", owner, repo, pr.number(), sha); return ResponseEntity.accepted().build();
+        }
+        reviewRunner.runReview(owner, repo, pr.number(),sha);
         return ResponseEntity.accepted().build();
 
     }
